@@ -1,0 +1,15 @@
+
+# Python environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Local Database
+db.sqlite3
+
+# Environment variables (CRITICAL)
+.env
+
+# Static files generated during build
+staticfiles/

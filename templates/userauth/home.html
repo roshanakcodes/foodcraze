@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col text-gray-800">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+
+                <!-- User Controls -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <div class="hidden sm:flex items-center text-sm font-medium text-gray-700 bg-gray-100 rounded-full px-4 py-2">
+                            <i class="fas fa-user-circle text-gray-400 mr-2 text-lg"></i>
+                            Hello, {{ user.username }}
+                        </div>
+                        <form action="{% url 'userauth:logout' %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg transition duration-200 shadow-sm flex items-center">
+                                <i class="fas fa-sign-out-alt mr-2 sm:hidden"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'userauth:login' %}" class="text-sm bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg font-medium transition duration-200 shadow-sm shadow-orange-200">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-200">
+            <div>
+                {% if user.is_authenticated %}
+                    <h1 class="text-3xl font-bold text-gray-900">Your Favourites</h1>
+                    <p class="mt-1 text-gray-500">Manage and revisit your saved recipes.</p>
+                {% else %}
+                    <h1 class="text-3xl font-bold text-gray-900">Welcome</h1>
+                    <p class="mt-1 text-gray-500">Create an account to save your favorite recipes.</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'userauth:login' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                        Get Started
+                    </a>
+                {% endif %}
+                <a href="{% url 'index' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                    <i class="fas fa-search mr-2 text-gray-400"></i> Recipe Search
+                </a>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        {% if user.is_authenticated %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for i in tasks_list %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group">
+                    
+                    <!-- Card Image -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="{{ i.image_url }}" alt="{{ i.name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                        <!-- Badges -->
+                        <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm text-orange-800 shadow-sm">
+                                {{ i.category }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-5 flex-grow flex flex-col">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{{ i.name }}</h3>
+                            <div class="flex items-center mt-2 text-sm text-gray-500">
+                                <i class="fas fa-globe-americas w-5 text-center mr-1 text-gray-400"></i>
+                                <span>{{ i.cuisine }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-auto space-y-3 pt-4 border-t border-gray-50">
+                            <div class="grid grid-cols-2 gap-3">
+                                {% if i.source_url %}
+                                    <a href="{{ i.source_url }}" target="_blank" class="flex items-center justify-center w-full px-3 py-2 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                                        Full Recipe
+                                    </a>
+                                {% else %}
+                                    <span class="opacity-0">Placeholder</span>
+                                {% endif %}
+
+                                {% if i.youtube_url %}
+                                    <a href="{{ i.youtube_url }}" target="_blank" class="flex items-center justify-center w-full px-3 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm shadow-red-100">
+                                        <i class="fab fa-youtube mr-1.5"></i> Watch
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <form action="{% url 'remove_fav' i.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-100 rounded-lg hover:bg-red-50 hover:border-red-200 transition-all duration-200 group-btn">
+                                    <i class="fas fa-trash-alt mr-2 group-btn-hover:scale-110 transition-transform"></i> Remove Favourite
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-dashed border-gray-300">
+                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-heart text-2xl text-orange-200"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No favorites yet</h3>
+                    <p class="mt-1 text-gray-500 max-w-sm">Recipes you mark as favorites will appear here for easy access.</p>
+                    <a href="{% url 'index' %}" class="mt-6 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                        Browse Recipes
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="bg-white border-t border-gray-100 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 overflow-hidden sm:px-6 lg:px-8">
+            <p class="mt-1 text-center text-sm text-gray-400">
+                &copy;  2025 FoodieCrave. Happy Cooking! 
+                <br>
+                | Built with Django by Roshan Akthar as a fun learning project |
+                <br>
+                UI design and implementation Gemini ;)
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

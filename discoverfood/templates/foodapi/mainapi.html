@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover meals</title>
+</head>
+<body>
+    <form method="GET" action="">
+        <input type="text" name="q" placeholder="Discover recipes" value="{{ search_term }}" autocomplete="off">
+        <button type="submit">Search</button>
+    </form> 
+    <div style="text-align: right;">
+    {% if user.is_authenticated %}
+        <a href="{% url 'userauth:dash' %}">View Profile/favourites</a>
+        <p>Hello, <strong>{{ user.username }}</strong></p>
+    {% else %}
+        <a href="{% url 'userauth:login' %}">Login</a>
+    {% endif %}
+    </div>
+
+    {% if search_term %}
+        <p>Showing results for: <strong>"{{ search_term }}"</strong></p>
+    {% else %}
+        <p>Random pick :</p>
+    {% endif %}
+
+    {% if meals %}
+        {% for meal in meals %}
+            <div>
+                <img src="{{ meal.strMealThumb }}" alt="{{ meal.strMeal }}" width="200">
+
+                <h3>{{ meal.strMeal }}</h3>
+                <p>
+                    Category: {{ meal.strCategory }} <br>
+                    Cuisine: {{ meal.strArea }}
+                </p>
+
+                {% if meal.strSource %}
+                    <a href="{{ meal.strSource }}">View Recipe</a>
+                {% else %}
+                    <span>No Recipe Link</span>
+                {% endif %}
+
+                {% if meal.strYoutube %}
+                    | <a href="{{ meal.strYoutube }}">Watch Video</a>
+                {% endif %}
+                <form method="post" action="{% url 'fav' %}">
+                 {% csrf_token %}
+                  <input type="hidden" name="id" value="{{ meal.idMeal }}">
+                  <input type="submit" value="Add to favourites">
+                </form>
+            </div>
+            <hr> 
+            {% endfor %}
+    
+    {% else %}
+        {% if search_term %}
+            <h3>No recipes found</h3>
+        {% endif %}
+    {% endif %}
+   
+</body>
+</html>
